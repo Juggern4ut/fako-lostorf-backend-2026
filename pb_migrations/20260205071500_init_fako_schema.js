@@ -1,5 +1,10 @@
 migrate((app) => {
   // site_settings singleton
+  try {
+    const existing = app.findCollectionByNameOrId("site_settings")
+    app.delete(existing)
+  } catch {}
+
   const siteSettings = new Collection({
     type: "base",
     name: "site_settings",
@@ -42,6 +47,11 @@ migrate((app) => {
   app.save(settingsRec)
 
   // news
+  try {
+    const existingNews = app.findCollectionByNameOrId("news")
+    app.delete(existingNews)
+  } catch {}
+
   const news = new Collection({
     type: "base",
     name: "news",
@@ -68,6 +78,11 @@ migrate((app) => {
   app.save(news)
 
   // events
+  try {
+    const existingEvents = app.findCollectionByNameOrId("events")
+    app.delete(existingEvents)
+  } catch {}
+
   const events = new Collection({
     type: "base",
     name: "events",
@@ -102,6 +117,11 @@ migrate((app) => {
   app.save(events)
 
   // gallery_links
+  try {
+    const existingGallery = app.findCollectionByNameOrId("gallery_links")
+    app.delete(existingGallery)
+  } catch {}
+
   const galleryLinks = new Collection({
     type: "base",
     name: "gallery_links",
