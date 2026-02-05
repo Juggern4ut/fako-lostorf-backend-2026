@@ -1,5 +1,10 @@
 migrate((app) => {
   // site_settings singleton (basic version, letting PocketBase handle ids & internals)
+  try {
+    const existingSettings = app.findCollectionByNameOrId("site_settings")
+    app.delete(existingSettings)
+  } catch {}
+
   const siteSettings = new Collection({
     type: "base",
     name: "site_settings",
@@ -32,6 +37,11 @@ migrate((app) => {
   app.save(settingsRec)
 
   // news (minimal options: keine Thumbs, keine speziellen MIME-Limits – das können wir später ergänzen)
+  try {
+    const existingNews = app.findCollectionByNameOrId("news")
+    app.delete(existingNews)
+  } catch {}
+
   const news = new Collection({
     type: "base",
     name: "news",
@@ -49,6 +59,11 @@ migrate((app) => {
   app.save(news)
 
   // events – "category" vorerst als einfacher Text, um Options-Validierungen zu umgehen
+  try {
+    const existingEvents = app.findCollectionByNameOrId("events")
+    app.delete(existingEvents)
+  } catch {}
+
   const events = new Collection({
     type: "base",
     name: "events",
@@ -68,6 +83,11 @@ migrate((app) => {
   app.save(events)
 
   // gallery_links – einfache Version, ein Cover-Bild + externer Link
+  try {
+    const existingGalleryLinks = app.findCollectionByNameOrId("gallery_links")
+    app.delete(existingGalleryLinks)
+  } catch {}
+
   const galleryLinks = new Collection({
     type: "base",
     name: "gallery_links",
