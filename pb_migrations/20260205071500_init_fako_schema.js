@@ -1,99 +1,132 @@
-/// <reference path="../pbjs.d.ts" />
-
-migrate(async (db) => {
+migrate((app) => {
   // site_settings singleton
   const siteSettings = new Collection({
-    id: 'site_settings',
-    name: 'site_settings',
-    type: 'base',
+    type: "base",
+    name: "site_settings",
     system: false,
-    schema: [
-      { name: 'homeTitle', type: 'text', required: true },
-      { name: 'homeIntro', type: 'editor', required: false },
-      { name: 'homeHeroImage', type: 'file', required: false, options: { maxSelect: 1 } },
-      { name: 'contactEmail', type: 'email', required: false },
-      { name: 'contactPhone', type: 'text', required: false },
-      { name: 'contactAddress', type: 'text', required: false },
-      { name: 'contactNotes', type: 'editor', required: false }
+    options: { onlySingleton: true },
+    fields: [
+      { type: "text", name: "homeTitle", required: true, presentable: true, max: 200 },
+      { type: "editor", name: "homeIntro", required: false, presentable: true },
+      {
+        type: "file",
+        name: "homeHeroImage",
+        required: false,
+        presentable: true,
+        maxSelect: 1,
+        maxSize: 10 * 1024 * 1024,
+        mimeTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"],
+        thumbs: ["1200x600", "800x400"],
+      },
+      { type: "email", name: "contactEmail", required: false, presentable: true },
+      { type: "text", name: "contactPhone", required: false, presentable: true, max: 40 },
+      { type: "text", name: "contactAddress", required: false, presentable: true, max: 300 },
+      { type: "editor", name: "contactNotes", required: false, presentable: true },
     ],
-    indexes: [],
-    options: { onlySingleton: true }
   })
 
-  await db.collections().create(siteSettings)
+  app.save(siteSettings)
 
-  // create default singleton record
-  await db.collection('site_settings').create({
-    homeTitle: 'Willkommen beim Fasnachtsverein Lostorf',
-    homeIntro: 'Die Fasnacht ist aus dem kulturellen Leben unserer Gemeinde nicht mehr wegzudenken. Gemeinsam schaffen wir unvergessliche Momente.\n\nKommt vorbei, macht mit und geniesst!',
-    contactEmail: 'info@fako-lostorf.ch',
-    contactPhone: '',
-    contactAddress: 'Fasnachtsverein Lostorf\n4654 Lostorf',
-    contactNotes: ''
-  })
+  // default singleton record
+  const settingsCol = app.findCollectionByNameOrId("site_settings")
+  const settingsRec = new Record(settingsCol)
+  settingsRec.set("homeTitle", "Willkommen beim Fasnachtsverein Lostorf")
+  settingsRec.set(
+    "homeIntro",
+    "Die Fasnacht ist aus dem kulturellen Leben unserer Gemeinde nicht mehr wegzudenken. Gemeinsam schaffen wir unvergessliche Momente.\n\nKommt vorbei, macht mit und geniesst!",
+  )
+  settingsRec.set("contactEmail", "info@fako-lostorf.ch")
+  settingsRec.set("contactPhone", "")
+  settingsRec.set("contactAddress", "Fasnachtsverein Lostorf\n4654 Lostorf")
+  settingsRec.set("contactNotes", "")
+  app.save(settingsRec)
 
   // news
   const news = new Collection({
-    id: 'news',
-    name: 'news',
-    type: 'base',
+    type: "base",
+    name: "news",
     system: false,
-    schema: [
-      { name: 'title', type: 'text', required: true },
-      { name: 'slug', type: 'text', required: false },
-      { name: 'body', type: 'editor', required: false },
-      { name: 'publishedAt', type: 'date', required: false },
-      { name: 'heroImage', type: 'file', required: false, options: { maxSelect: 1 } },
-      { name: 'isPinned', type: 'bool', required: false }
+    fields: [
+      { type: "text", name: "title", required: true, presentable: true, max: 200 },
+      { type: "text", name: "slug", required: false, presentable: true, max: 200 },
+      { type: "editor", name: "body", required: false, presentable: true },
+      { type: "date", name: "publishedAt", required: false, presentable: true },
+      {
+        type: "file",
+        name: "heroImage",
+        required: false,
+        presentable: true,
+        maxSelect: 1,
+        maxSize: 10 * 1024 * 1024,
+        mimeTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"],
+        thumbs: ["1200x600", "800x400"],
+      },
+      { type: "bool", name: "isPinned", required: false, presentable: true },
     ],
-    indexes: [],
-    options: {}
   })
 
-  await db.collections().create(news)
+  app.save(news)
 
   // events
   const events = new Collection({
-    id: 'events',
-    name: 'events',
-    type: 'base',
+    type: "base",
+    name: "events",
     system: false,
-    schema: [
-      { name: 'title', type: 'text', required: true },
-      { name: 'description', type: 'editor', required: false },
-      { name: 'startDate', type: 'date', required: true },
-      { name: 'endDate', type: 'date', required: false },
-      { name: 'location', type: 'text', required: false },
-      { name: 'category', type: 'select', required: false, options: { values: ['Umzug', 'Ball', 'Kinderfasnacht', 'Sonstiges'] } },
-      { name: 'image', type: 'file', required: false, options: { maxSelect: 1 } },
-      { name: 'isHighlight', type: 'bool', required: false }
+    fields: [
+      { type: "text", name: "title", required: true, presentable: true, max: 200 },
+      { type: "editor", name: "description", required: false, presentable: true },
+      { type: "date", name: "startDate", required: true, presentable: true },
+      { type: "date", name: "endDate", required: false, presentable: true },
+      { type: "text", name: "location", required: false, presentable: true, max: 200 },
+      {
+        type: "select",
+        name: "category",
+        required: false,
+        presentable: true,
+        options: { values: ["Umzug", "Ball", "Kinderfasnacht", "Sonstiges"] },
+      },
+      {
+        type: "file",
+        name: "image",
+        required: false,
+        presentable: true,
+        maxSelect: 1,
+        maxSize: 10 * 1024 * 1024,
+        mimeTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"],
+        thumbs: ["800x600", "400x300"],
+      },
+      { type: "bool", name: "isHighlight", required: false, presentable: true },
     ],
-    indexes: [],
-    options: {}
   })
 
-  await db.collections().create(events)
+  app.save(events)
 
   // gallery_links
   const galleryLinks = new Collection({
-    id: 'gallery_links',
-    name: 'gallery_links',
-    type: 'base',
+    type: "base",
+    name: "gallery_links",
     system: false,
-    schema: [
-      { name: 'title', type: 'text', required: true },
-      { name: 'date', type: 'date', required: false },
-      { name: 'coverImage', type: 'file', required: false, options: { maxSelect: 1 } },
-      { name: 'externalUrl', type: 'url', required: true }
+    fields: [
+      { type: "text", name: "title", required: true, presentable: true, max: 200 },
+      { type: "date", name: "date", required: false, presentable: true },
+      {
+        type: "file",
+        name: "coverImage",
+        required: false,
+        presentable: true,
+        maxSelect: 1,
+        maxSize: 10 * 1024 * 1024,
+        mimeTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"],
+        thumbs: ["800x600", "400x300"],
+      },
+      { type: "url", name: "externalUrl", required: true, presentable: true, max: 500 },
     ],
-    indexes: [],
-    options: {}
   })
 
-  await db.collections().create(galleryLinks)
-}, async (db) => {
-  await db.collections().delete('gallery_links')
-  await db.collections().delete('events')
-  await db.collections().delete('news')
-  await db.collections().delete('site_settings')
+  app.save(galleryLinks)
+}, (app) => {
+  try { app.delete(app.findCollectionByNameOrId("gallery_links")) } catch {}
+  try { app.delete(app.findCollectionByNameOrId("events")) } catch {}
+  try { app.delete(app.findCollectionByNameOrId("news")) } catch {}
+  try { app.delete(app.findCollectionByNameOrId("site_settings")) } catch {}
 })
